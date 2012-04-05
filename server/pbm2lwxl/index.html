@@ -1,0 +1,319 @@
+<HTML>
+<HEAD>
+<TITLE>pbm2lwxl - A driver for the CoStar Labelwriter XL</TITLE>
+<LINK REV="made" href="mailto:whitis@dbd.com">
+</HEAD>
+<BODY>
+<!--- Begin menu bar --->
+<HR>
+<A HREF="http://www.dbd.com/~whitis/">[HOME(Mark Whitis)]</A>
+<A HREF="http://www.dbd.com/~whitis/whitis.html">[Contact]</A>
+<A HREF="http://www.dbd.com/~whitis/resume.html">[Resume]</A>
+<A HREF="http://www.dbd.com/~whitis/browser_friendly.html">[Browser Friendly]</A>
+<A HREF="http://www.dbd.com/~whitis/nospam.html">[No Spam]</A>
+<A HREF="http://www.freelabs.com/">[FEL]</A>
+<A HREF="http://www.dbd.com/">[DBD]</A>
+<HR>
+<!--- End menu bar --->
+
+<H1>pbm2lwxl - A driver for the CoStar Labelwriter XL</H1>
+<P>
+<H2>Overview</H2>
+pbm2lwxl is a device driver for the CoStar Labelwriter XL and
+compatible printers.  It takes plain (not raw) pbm files.
+The PBM file format was popularized by the PBM (aka netbpm, pbmplus, etc)
+utilities by Jef Poskanzer.  There are utilities to convert from almost
+any image format to PBM/PPM/PGM/PNM, and vice versa.   
+<A HREF="http://www.ghostscript.com/">Ghostscript</A> supports pbm output.  
+This driver was written in the C language for Linux 
+but should compile on any un*x compatible system as well as many 
+other operating systems; no operating system specific calls were used.
+<P>
+Writing a PBM filter is an appropriate way to write a printer driver
+for a simple raster based printer.
+
+<UL>
+<LI>It can run entirely in user space
+<LI>Integrate with the standard lpr spooling system and ghostscript
+rasterizing system
+<LI>It will work with any version of GNU Ghostscript, Alladin ghostscript, or
+Artiflex Ghostscript, without recompiling.  And, since the code is
+not actually linked with the Ghostscript code, you don't need to worry
+about GPL tainting or other licensing issues.
+<LI>Anything which can be printed with ghostscript (subject to the size/resolution/monchrome/1 bit per pixel restrictions of the device), can be printed on
+a label.  You can mix multiple sizes of text at various angles, bar codes,
+images, etc.   And you can do it in a way that is reasonably compatible
+with laser and inkjet printers as well.
+<LI>Anything which can be converted to plain PBM format can be printed
+directly (or you can go through pnm2ps, ghostscript, and back to PBM format).
+<LI>Quick and Easy.  It took a couple hours to write the driver and a little
+while longer to write documentation.
+<LI>Portable.  The code will compile on any platform.  
+<LI>Ghostscript is the native rasterization system on most operating 
+systems and can replace and/or work with the native system on almost any other.
+<LI>It can use existing serial/parallel/usb drivers
+</UL>
+
+
+<P>
+Many idiotic companies only write windows drivers for their printers and then
+their products only work with microsoft windows, and often not even will all
+versions of windows.   Write a PBM or ghostscript
+driver and your product will work with MS-DOS, Windows 3.1, Windows 95,
+Windows 98, Windows NT, MacOS, OS/2, Linux, FreeBSD, NetBSD, OpenBSD,
+4.3BSD, Solaris, Sunos, AIX, HPUX, Irix, Digital Unix, SCO Unix, Ultrix,
+VMS, NeXTstep, Amiga, Plan 9, SMS/QDOS.
+
+<TABLE BORDER=3>
+  <TR>
+    <TD>CoStar
+    </TD>
+    <TD>LabelWriter II
+    </TD>
+    <TD>9600
+    </TD>
+    <TD>192
+    </TD>
+    <TD>Should work
+    </TD>
+    <TD>&nbsp;
+    </TD>
+  </TR>
+
+  <TR>
+    <TD>CoStar
+    </TD>
+    <TD>LabelWriter XL+
+    </TD>
+    <TD>19200
+    </TD>
+    <TD>448
+    </TD>
+    <TD>Should work
+    </TD>
+    <TD>&nbsp;
+    </TD>
+   </TR>
+
+  <TR>
+    <TD>CoStar
+    </TD>
+    <TD>EL40
+    </TD>
+    <TD>?
+    </TD>
+    <TD>192?  1-1/2" wide
+    </TD>
+    <TD>Should work
+    </TD>
+    <TD>&nbsp;
+    </TD>
+  </TR>
+
+  <TR>
+    <TD>CoStar
+    </TD>
+    <TD>EL60
+    </TD>
+    <TD>?
+    </TD>
+    <TD>448?  2-1/4" wide
+    </TD>
+    <TD>Should work
+    </TD>
+    <TD>&nbsp;
+    </TD>
+  </TR>
+
+  <TR>
+    <TD>CoStar
+    </TD>
+    <TD>Turbo
+    </TD>
+    <TD>?
+    </TD>
+    <TD>448?  2-1/4" wide
+    </TD>
+    <TD>Should work
+    </TD>
+    <TD>&nbsp;
+    </TD>
+  </TR>
+
+
+  <TR>
+    <TD>Avery
+    </TD>
+    <TD>Personal Label Printer
+    </TD>
+    <TD>19200
+    </TD>
+    <TD>192
+    </TD>
+    <TD>Tested - Ok
+    </TD>
+    <TD>&nbsp;
+    </TD>
+   </TR>
+  <TR>
+    <TD>Avery
+    </TD>
+    <TD>Personal Label Printer+???
+    </TD>
+    <TD>19200
+    </TD>
+    <TD>448
+    </TD>
+    <TD>Should work
+    </TD>
+    <TD>&nbsp;
+    </TD>
+   </TR>
+
+  <TR>
+    <TD>Sieko
+    </TD>
+    <TD>any
+    </TD>
+    <TD>n/a
+    </TD>
+    <TD>n/a
+    </TD>
+    <TD>Should NOT work.
+    </TD>
+    <TD>See below
+    </TD>
+  </TR>
+
+  <TR>
+    <TD>Sony
+    </TD>
+    <TD>any
+    </TD>
+    <TD>n/a
+    </TD>
+    <TD>n/a
+    </TD>
+    <TD>Unknown
+    </TD>
+    <TD>See below
+    </TD>
+  </TR>
+
+
+</TABLE>
+
+
+<H2>Download</H2>
+Download <A HREF="pbm2lwxl.tar.gz">pbm2lwxl.tar.gz</A>
+
+<H2>License</H2>
+Copyright 1999 by Mark Whitis.  All Rights Reserved. 
+Availible under this <A HREF="../license.html">license</A>.
+Not GPL tainted.
+
+
+ The labelwriter XL uses 19200.  Older models use 9600 
+ I think the avery units are relabeled costar units - they look identical 
+ inside and out 
+<H2>usage</H2>
+The printer uses xon/xoff - configure spooler appropriately
+or use something like: "stty 19200 ixon </dev/cua1" if you
+are talking to the port directly.
+<PRE>
+ usage: 
+     pbm2lwxl [ width [height] ] 
+</PRE>
+width and height are in pixels.  width should be 192 (1") or 448 
+(wide models).   You can redirect the output directly to the serial
+port the printer is attached assuming you don't already have a spooler
+running on that port and you have already set the baud rate and XON/XOFF
+flow controls.
+<P>
+<H2>scripts</H2>
+You may need to edit the pathnames to utilities in these scripts.
+<UL>
+<LI>ps2lwxl<BR>Postscript to labelwriter
+<LI>txt2lwxl<BR>text (6 lines x 29 char) to labelwriter
+<LI>small2lwxl<BR>text (12 lines) to labelwriter
+</UL>
+You will probably want to use one or more of the following utilities 
+<PRE>
+    mpage -1 -o -m720t0lrb -L6      - ascii to postscript 
+    ghostscript -sDEVICE=pbm -sOutputFile=- -q -dNOPAUSE -r192x192 -g700x192 -dSAFER - -c quit 
+    pnmflip -cw   - to rotate 90 degrees 
+    pnmnoraw      - convert from raw to plain (ascii) pnm format. 
+</PRE>
+Note that the ghostscript command shown above generates 700x192 
+which should be pnmflip'ed to get 192x700 for printing.  Change "-L6" to
+"-L12" on the mpage command to fit more lines on a label.
+
+<P>
+This program does not use libpnm.  No particular reason.  It was just
+faster to write code which read a plain pbm file than to figure out
+how to use libpnm and if its licensing was acceptable.  libpnm is
+more flexible but we really don't need that flexibility here.
+</P>
+
+
+<H2>lpr</H2>
+I haven't integrated this with lpr yet.  The biggest question is how to
+set XON/XOFF.  The documentation on fs/fc printcap directives is a bit
+vague (to say the least).  It is possible I might have to write
+a trivial output filter program to do xon/xoff.
+fs=IXON?????????:lp=/dev/cua1:br#19200:
+
+<H2>Bar Codes</H2>
+Check out pbmupc, part of the netpbm package, probably already installed on
+most Linux boxes.
+
+<H2>Other companies</H2>
+<H3>Avery</H3>
+The <A HREF="http://www.avery.com/">avery</A> products look like rebranded costar products.  I have
+several of the 1" models around and will test them soon.
+
+<H3>Seiko</H3>
+This program will not drive seiko label printers. 
+For a driver program for seiko printers, check out 
+<A HREF="http://members.tripod.com/~uutil/slap/">slap</A>.
+Slap is a rather bloated program which tries to reinvent the wheel 
+instead of cooperating with the existing rasterizer (ghostscript).
+It comes with a bunch of fonts.  The result appears to be that
+you have a much more complicated program but much less flexibility
+in printing labels.
+
+<H3>Sony</H3>
+I know nothing about sony label printers
+
+<H3>Dymo</H3>
+It looks like <A HREF="http://www.dymo.com/">dymo</A>bought costar which
+is now called <A HREF="http://www.dymo-costar.com/">Dymo-Costar</A>.
+Don't confuse these printers, however, with the continuous laminated 
+thermal transfer label tape printers made by Brother and Casio, some of
+which were rebranded by Dymo.  And certainly don't confuse these with
+the even older mechanical embossing printers by Dymo or the old
+Kroy mechanical ribbon transfer label makers.
+
+<H3>Industrial Bar code printers</H3>
+I don't have any information at the moment on the industrial strength 
+bar code printers.
+
+
+
+<ADDRESS>
+<P>This file is maintained by 
+<A HREF=http:/www.dbd.com/~whitis/whitis.html>Mark Whitis</A> 
+(<A href="mailto:whitis@dbd.com">whitis@dbd.com</A>).  
+</ADDRESS>
+</BODY>
+</HTML>
+
+
+
+
+
+
+
+
+
+

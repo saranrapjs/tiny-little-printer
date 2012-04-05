@@ -1,0 +1,1057 @@
+<HTML>
+<HEAD>
+<TITLE>pbm2lwxl - A driver for the CoStar Labelwriter XL</TITLE>
+<LINK REV="made" href="mailto:whitis@freelabs.com">
+</HEAD>
+<BODY><!-- BEGIN MENU --->
+<TABLE BORDER=10 CELLSPACING=10 CELLPADDING=5>
+   <TR>
+       <TD>
+           Mark Whitis's Website
+       </TD>
+       <TD>
+          <A HREF="http://www.freelabs.com/~whitis/">
+             Home Page
+          </A>
+       </TD>
+
+       <TD>
+          <A HREF="http://www.freelabs.com/~whitis/linux/">
+             Linux
+          </A>
+       </TD>
+
+       <TD>
+          <A HREF="http://www.freelabs.com/~whitis/unleashed/">
+             Book: Linux Programming Unleashed
+          </A>
+       </TD>
+
+       <TD>
+          <A HREF="http://www.freelabs.com/~whitis/resume/">
+             My Resume
+          </A>
+       </TD>
+
+       <TD>
+          <A HREF="http://www.freelabs.com/~whitis/clan/">
+             Genealogical Data
+          </A>
+       </TD>
+
+       <TD>
+          <A HREF="http://www.freelabs.com/~whitis/whitis.html">
+             Contact Info
+          </A>
+       </TD>
+       <TD>
+          <A HREF="http://www.freelabs.com/~whitis/security/">
+              Security
+          </A>
+       </TD>
+       <TD>
+          <A HREF="http://www.freelabs.com/~whitis/about/">
+             About
+          </A>
+       </TD>
+   </TR>
+</TABLE>
+<!-- END MENU --->
+
+<!--- Begin menu bar --->
+<HR>
+<A HREF="http://www.freelabs.com/~whitis/">[HOME(Mark Whitis)]</A>
+<A HREF="http://www.freelabs.com/~whitis/whitis.html">[Contact]</A>
+<A HREF="http://www.freelabs.com/~whitis/resume.html">[Resume]</A>
+<A HREF="http://www.freelabs.com/~whitis/browser_friendly.html">[Browser Friendly]</A>
+<A HREF="http://www.freelabs.com/~whitis/nospam.html">[No Spam]</A>
+<A HREF="http://www.freelabs.com/">[FEL]</A>
+<A HREF="http://www.dbd.com/">[DBD]</A>
+<HR>
+<!--- End menu bar --->
+
+<IMG SRC="weblogo.gif" ALT="[IMAGE]" WIDTH=640 HEIGHT=83>
+<P>
+<H1>pbm2lwxl - A driver for the CoStar Labelwriter XL</H1>
+<P>
+<H2>Overview</H2>
+pbm2lwxl is a device driver for the CoStar Labelwriter XL and
+compatible printers.  It takes plain (not raw) pbm files.
+The PBM file format was popularized by the PBM (aka netbpm, pbmplus, etc)
+utilities by Jef Poskanzer.  There are utilities to convert from almost
+any image format to PBM/PPM/PGM/PNM, and vice versa.   
+<A HREF="http://www.ghostscript.com/">Ghostscript</A> supports pbm output.  
+This driver was written in the C language for Linux 
+but should compile on any un*x compatible system as well as many 
+other operating systems; no operating system specific calls were used.
+<P>
+Writing a PBM filter is an appropriate way to write a printer driver
+for a simple raster based printer.
+
+<UL>
+<LI>It can run entirely in user space
+<LI>Integrate with the standard lpr spooling system and ghostscript
+rasterizing system
+<LI>It will work with any version of GNU Ghostscript, Alladin ghostscript, or
+Artiflex Ghostscript, without recompiling.  And, since the code is
+not actually linked with the Ghostscript code, you don't need to worry
+about GPL tainting or other licensing issues.
+<LI>Anything which can be printed with ghostscript (subject to the size/resolution/monchrome/1 bit per pixel restrictions of the device), can be printed on
+a label.  You can mix multiple sizes of text at various angles, bar codes,
+images, etc.   And you can do it in a way that is reasonably compatible
+with laser and inkjet printers as well.
+<LI>Anything which can be converted to plain PBM format can be printed
+directly (or you can go through pnm2ps, ghostscript, and back to PBM format).
+<LI>Quick and Easy.  It took a couple hours to write the driver and a little
+while longer to write documentation.
+<LI>Portable.  The code will compile on any platform.  
+<LI>Ghostscript is the native rasterization system on most operating 
+systems and can replace and/or work with the native system on almost any other.
+<LI>It can use existing serial/parallel/usb drivers
+</UL>
+
+
+<P>
+Many idiotic companies only write windows drivers for their printers and then
+their products only work with microsoft windows, and often not even will all
+versions of windows.   Write a PBM or ghostscript
+driver and your product will work with MS-DOS, Windows 3.1, Windows 95,
+Windows 98, Windows NT, MacOS, OS/2, Linux, FreeBSD, NetBSD, OpenBSD,
+4.3BSD, Solaris, Sunos, AIX, HPUX, Irix, Digital Unix, SCO Unix, Ultrix,
+VMS, NeXTstep, Amiga, Plan 9, SMS/QDOS.
+
+
+<H2>Status</H2>
+I am currently working on support for multipage postscript files.  The latest
+version of the driver (probably newer than availible here) supports multiple
+PBM files on a single input stream as output by ghostscript.  Unfortunately,
+pbmflip and pbmnoraw (which are used in the scripts) choke.  I am now getting
+ghostscript to do the rotation, where desired.   The current version works
+fine as long as there is only one label per print job.
+
+Nov 1999 Update: Dymo-Costar has sent me several of their printers for testing.
+I have tested the Turbo, EL60, and EL40.  All work with the appropriate
+parameters (see table below).
+
+
+<H2>Device Support</H2>
+<TABLE BORDER=3>
+  <TR>
+    <TD>CoStar
+    </TD>
+    <TD>LabelWriter II
+    </TD>
+    <TD>9600
+    </TD>
+    <TD>192?/128?
+    </TD>
+    <TD>Should work
+    </TD>
+    <TD>&nbsp;
+    </TD>
+  </TR>
+
+  <TR>
+    <TD>CoStar
+    </TD>
+    <TD>LabelWriter XL
+    </TD>
+    <TD>19200
+    </TD>
+    <TD>192
+    </TD>
+    <TD>Tested - works
+    </TD>
+    <TD>&nbsp;
+    </TD>
+   </TR>
+  <TR>
+    <TD>CoStar
+    </TD>
+    <TD>LabelWriter XL+
+    </TD>
+    <TD>19200
+    </TD>
+    <TD>448
+    </TD>
+    <TD>Should work
+    </TD>
+    <TD>&nbsp;
+    </TD>
+   </TR>
+
+  <TR>
+    <TD>CoStar
+    </TD>
+    <TD>EL40
+    </TD>
+    <TD>19200
+    </TD>
+    <TD>192  1-1/2" wide
+    </TD>
+    <TD>Tested.  Works.
+    </TD>
+    <TD>&nbsp;
+    </TD>
+  </TR>
+
+  <TR>
+    <TD>CoStar
+    </TD>
+    <TD>EL60
+    </TD>
+    <TD>19200
+    </TD>
+    <TD>448  2-1/4" wide
+    </TD>
+    <TD>Tested.  Works.
+    </TD>
+    <TD>&nbsp;
+    </TD>
+  </TR>
+
+  <TR>
+    <TD>CoStar
+    </TD>
+    <TD>Turbo
+    </TD>
+    <TD>115200
+    </TD>
+    <TD>448  2-1/4" wide
+    </TD>
+    <TD>Tested, works
+    </TD>
+    <TD>&nbsp;
+    </TD>
+  </TR>
+
+  <TR>
+    <TD>CoStar
+    </TD>
+    <TD>SE250
+    </TD>
+    <TD>115,200
+    </TD>
+    <TD>448
+    </TD>
+    <TD>Should work
+    </TD>
+    <TD>&nbsp;
+    </TD>
+  </TR>
+
+  <TR>
+    <TD>CoStar
+    </TD>
+    <TD>SE250+
+    </TD>
+    <TD>?
+    </TD>
+    <TD>448?
+    </TD>
+    <TD>Should work
+    </TD>
+    <TD>115.2Kbps
+    </TD>
+  </TR>
+
+
+  <TR>
+    <TD>CoStar
+    </TD>
+    <TD>ASCII
+    </TD>
+    <TD>?
+    </TD>
+    <TD>192?
+    </TD>
+    <TD>Should work
+    </TD>
+    <TD>115.2Kbps
+    </TD>
+  </TR>
+
+
+  <TR>
+    <TD>CoStar
+    </TD>
+    <TD>ASCII+
+    </TD>
+    <TD>?
+    </TD>
+    <TD>448
+    </TD>
+    <TD>Should work
+    </TD>
+    <TD>115.2Kbps
+    </TD>
+  </TR>
+
+
+
+
+  <TR>
+    <TD>Avery
+    </TD>
+    <TD>Personal Label Printer
+    </TD>
+    <TD>9600
+    </TD>
+    <TD>128
+    </TD>
+    <TD>Tested - lower resolution
+    </TD>
+    <TD>approx 128x128 dpi
+    </TD>
+   </TR>
+  <TR>
+    <TD>Avery
+    </TD>
+    <TD>Personal Label Printer+???
+    </TD>
+    <TD>19200
+    </TD>
+    <TD>448
+    </TD>
+    <TD>Should work
+    </TD>
+    <TD>&nbsp;
+    </TD>
+   </TR>
+
+  <TR>
+    <TD>Sieko
+    </TD>
+    <TD>any
+    </TD>
+    <TD>n/a
+    </TD>
+    <TD>n/a
+    </TD>
+    <TD>Should NOT work.
+    </TD>
+    <TD>See below
+    </TD>
+  </TR>
+
+  <TR>
+    <TD>Sony
+    </TD>
+    <TD>any
+    </TD>
+    <TD>n/a
+    </TD>
+    <TD>n/a
+    </TD>
+    <TD>Unknown
+    </TD>
+    <TD>See below
+    </TD>
+  </TR>
+
+  <TR>
+    <TD>CoStar
+    </TD>
+    <TD>LW300
+    </TD>
+    <TD>115200
+    </TD>
+    <TD>300?  1-1/2" wide
+    </TD>
+    <TD>Not tested.  Will Propably work.
+    </TD>
+    <TD>Has Serial and USB
+    </TD>
+  </TR>
+
+  <TR>
+    <TD>CoStar
+    </TD>
+    <TD>LW330
+    </TD>
+    <TD>115200
+    </TD>
+    <TD>700?  2-1/4" wide
+    </TD>
+    <TD>Not Tested.  Will probably work.
+    </TD>
+    <TD>Has Serial and USB
+    </TD>
+  </TR>
+
+  <TR>
+    <TD>CoStar
+    </TD>
+    <TD>LW330 Turbo
+    </TD>
+    <TD>115200?
+    </TD>
+    <TD>700?  2-1/4" wide
+    </TD>
+    <TD>Not tested.  Will probably work.
+    </TD>
+    <TD>Has serial and USB.
+    </TD>
+  </TR>
+
+</TABLE>
+
+Since the Avery unit has lower resolution, there are a few problems.
+Random garbage is printed on some lines.  This is probably the result
+of sending more bytes of data per line than the printer expects.  There
+is also an offset problem (the last 128 pixels get printed, not the first) 
+unless you specify a label width of 128 when invoking pbm2lwxl.  Effective
+label size (standard 1-1/8x3.5" labels) is 128x448 pixels.
+<P>
+These printers do not autobaud; use only the single baud 
+rate supported by the printer.  Use the correct label width or
+you probably won't like the results.
+
+<H2>Download</H2>
+Download <A HREF="pbm2lwxl.tar.gz">pbm2lwxl.tar.gz</A>
+
+<H2>License</H2>
+Copyright 1999 by Mark Whitis.  All Rights Reserved. 
+Availible under this <A HREF="../license.html">license</A>.
+Not GPL tainted.
+
+<H2>Compiling</H2>
+<P>
+  In the commands below, <CODE>/dist</CODE> is the directory on your
+  system where you download distribution files prior to installation.
+  Substitute a suitable directory on your system or make <CODE>/dist</CODE>
+  a symbolic link to a directory created for the purpose on a disk partition
+  with sufficient free space.  
+</P>
+<PRE>
+   cd /dist
+   wget http://www.freelabs.com/~whitis/software/pbm2lwxl/pbm2lwxl.tar.gz
+   cd /usr/local/src
+   mkdir pbm2lwxl
+   cd pbm2lwxl
+   tar zxvf /dist/pbm21wxl.tar.gz
+   make
+   make install
+</PRE>
+<P>
+   "make install" does not make any attempt to integrate with the
+   printing system on your system.
+</P>
+
+<H2>usage</H2>
+<P>
+The labelwriter XL uses 19200.  Older models use 9600 
+The printer uses xon/xoff - configure spooler appropriately
+or use something like: "stty 19200 ixon -onlcr </dev/cua1" if you
+are talking to the port directly.  The -onlcr disables newline to
+carriage return translation which will cause garbled output.
+<PRE>
+ usage: 
+     pbm2lwxl [ width [height] ] 
+ For example:
+     # Make sure you specify the correct baud rate for your printer model
+     stty 19200 ixon -onlcr </dev/cua1
+     cat file.pbm | pbm2lwxl 192 672 >/dev/cua1
+</PRE>
+width and height are in pixels.  width should be 192 (1") or 448 
+(wide models).   You can redirect the output directly to the serial
+port the printer is attached assuming you don't already have a spooler
+running on that port and you have already set the baud rate and XON/XOFF
+flow controls.
+</P>
+
+<P>
+Obviously, you need to redirect a PBM file into the standard input
+of the program.
+</P>
+
+<H2>scripts</H2>
+You may need to edit the pathnames to the pbm2lwxl utility in these scripts.
+Since lpd does not establish a reasonable path, I hardcoded the pathnames
+to /usr/local/bin/.
+<UL>
+<LI>ps2lwxl<BR>Postscript to labelwriter
+<P>
+  The script "ps2lwxl" takes a postscript file on standard input and
+  outputs commands to a lwxl.  You will need to edit it with the
+  appropriate parameters for your printer/system.
+
+  <PRE>
+     # Make sure you specify the correct baud rate for your printer model
+     stty 19200 ixon -onlcr </dev/cua1
+     cat file.ps | ps2lwxl >/dev/cua1
+  </PRE>
+
+  As supplied, the script performs rotation of the image using pnmflip.
+  Unfortunately, that does not allow more than one "page" (label) to
+  be printed at a time.  A better approach is to remove the pnmflip
+  and do the rotation in postscript by configuring your application
+  program appropriately, or by using the landscap.ps file or
+  incorporating it into the ps2lwxl script (put the full pathname
+  before the " - " in the ghostscript command.
+  <PRE>
+     cat /usr/share/ghostscript/5.50/landscap.ps myfile.ps | ps2lwxl >/dev/cua1
+  </PRE>
+
+</P>
+<LI>txt2lwxl<BR>text (6 lines x 29 char) to labelwriter
+<LI>small2lwxl<BR>text (12 lines) to labelwriter
+</UL>
+You will probably want to use one or more of the following utilities 
+<PRE>
+    mpage -1 -o -m720t0lrb -L6      - ascii to postscript 
+    ghostscript -sDEVICE=pbm -sOutputFile=- -q -dNOPAUSE -r192x192 -g700x192 -dSAFER - -c quit 
+    pnmflip -cw   - to rotate 90 degrees 
+    pnmnoraw      - convert from raw to plain (ascii) pnm format. 
+</PRE>
+Note that the ghostscript command shown above generates 700x192 
+which should be pnmflip'ed to get 192x700 for printing.  Change "-L6" to
+"-L12" on the mpage command to fit more lines on a label.
+
+<P>
+This program does not use libpnm.  No particular reason.  It was just
+faster to write code which read a plain pbm file than to figure out
+how to use libpnm and if its licensing was acceptable.  libpnm is
+more flexible but we really don't need that flexibility here.
+</P>
+
+
+<H2>lpr</H2>
+<P>
+Apparently, lpd recognizes XON/XOFF on serial ports.  This is good
+since there does not appear to be a way to configure that (the
+fs printcap directive seems inadequate).  So, here is a sample
+configuration for text.
+<PRE>
+label0:\
+        :sd=/var/spool/lpd/label0:\
+        :mx#0:\
+        :sh:\
+        :lp=/dev/cua19:\
+        :if=/usr/local/bin/txt2lwxl:\
+        :br#9600:
+</PRE>
+
+</P>
+
+
+<H2>Bar Codes</H2>
+Check out pbmupc, part of the netpbm package, probably already installed on
+most Linux boxes.
+
+<H2>Other companies</H2>
+<H3>Avery</H3>
+The <A HREF="http://www.avery.com/">avery</A> 
+units are relabeled older costar units 
+(I suspect the labelwriter II) - they look identical 
+inside and out and the Avery units even say "COSTAR" inside.
+<P>
+The Avery Personal label printer prints at 1" per second, according
+to the meager specifications.
+
+
+<H3>Seiko</H3>
+This program will not drive seiko label printers. 
+For a driver program for seiko printers, check out 
+<A HREF="http://members.tripod.com/~uutil/slap/">slap</A>.
+Slap is a rather bloated program which tries to reinvent the wheel 
+instead of cooperating with the existing rasterizer (ghostscript).
+It comes with a bunch of fonts.  The result appears to be that
+you have a much more complicated program but much less flexibility
+in printing labels.
+
+<H3>Sony</H3>
+I know nothing about sony label printers
+
+<H3>Dymo</H3>
+It looks like <A HREF="http://www.dymo.com/">dymo</A>bought costar which
+is now called <A HREF="http://www.dymo-costar.com/">Dymo-Costar</A>.
+Don't confuse these printers, however, with the continuous laminated 
+thermal transfer label tape printers made by Brother and Casio, some of
+which were rebranded by Dymo.  And certainly don't confuse these with
+the even older mechanical embossing printers by Dymo or the old
+Kroy mechanical ribbon transfer label makers.
+
+<H3>Industrial Bar code printers</H3>
+I don't have any information at the moment on the industrial strength 
+bar code printers.
+
+<H2>Innards</H2>
+The following was from an Avery Personal Label Printer
+<PRE>
+Chip: (Motorola logo) SC408056FN 600100-030 COSTAR REV D 2C83JQQKV9152
+  (Probably a mask programmed 68HC11 processor)
+Chip: 74HC04N
+Chip: 75HC423N
+Chip: 2x (ST logo) PBL3717A 89134C
+Chip: Max232N
+Chip: 2xUA7805C
+Chip: P8P10 (T0-220)
+Marking: ASSY PART NO: 60100-032
+Marking: COSTAR CORP 400032 REV D
+</PRE>
+
+<H2>Postscript</H2>
+For more information on the postscript language, get a copy of
+<A HREF="http://www.amazon.com/exec/obidos/ASIN/0201101793/markwhitis">
+Postscript Language Tutorial and Cookbook</A> and the
+<A HREF="http://www.amazon.com/exec/obidos/ASIN/0201181274/markwhitis">
+Postscript Language Reference Manual</A>.
+<P>
+One of the most common problems you will have with these label printers
+is that a postscript page is laid out so that the text prints at the
+top of a normal 8-1/2x11 page and the area which is rendered into the
+bitmap is a small rectangle in the lower left corner.  Even if you
+only print 6 lines on the page, they will typically be at the top.
+The lower left hand corner is used as an origin (this makes better
+mathematical sense but printers and monitors work the other way) rather 
+than the top left which causes unexpected things to happen when printing
+other paper sizes.  This is why the funny margin options are used with
+mpage above.
+<P>
+It might be helpful to define new paper sizes in gs_stad.ps.  
+mpage would probably need to be updated.  mpage would benifit from
+a page definition database which specified where each little page
+went on the page.  This would be useful for all sorts of laser and
+inkjet printer labels.
+<P>
+
+<H2>Compression</H2>
+The LableWriter XL supports a form of RLE image compression.  I don't
+know if the older printers support this.  The driver uses the 
+raw, uncompressed, image data format.  On some models, the serial port
+might slow down the printing with uncompressed data.
+
+<H2>Applications</H2>
+<UL>
+<LI>Media labels
+<LI>office label printer pool - one label printer with each size
+label running of a multiport serial card on a linux server can serve
+every machine on the net.  The inexpensive 8 port cards from
+<A HREF="http://www.byterunner.com/">Byterunner</a> are appropriate for this application.
+<LI>Inexpensive point of sale receipt printer.   A bank of inexpensive
+interchangable label printers can serve to print receipts, tickets,
+barcode and price labels, etc. (see comments on adding machine paper 
+under Label Stock)
+<LI>Bar code labels
+<LI>Shipping labels
+<LI>Temporary Name Badges for visitors or others
+<LI>Ticket printer  (use name badge or custom stock).
+</UL>
+
+<H2>Debugging</H2>
+Set the variable debug to 1 in pbm2lwxl.c (or set it using gdb).
+
+<H2>Continuous paper</H2>
+Thermal adding machine paper can be used instead of labels.  You will need
+to send a label length of -1 to the printer to disable the hole sensor;
+if the second argument to pbm2lwxl is a 
+Cheap thermal paper can be handy for testing purposes or for applications
+such as a cheap point of sale receipt printer (using the wide model,
+preferably), cheap tape over shipping labels, etc.  For line by line
+printing applications, you may want to use pbmtext instead of
+ghostscript and disable the formfeed command in the software.
+<P>
+pnmcrop is handy with pnmtext to trim the excessive border produced
+by pnmtext.
+<P>
+Look at the script "fontdemo" for a sample of receipt style printing.
+
+
+</PRE>
+<H2>Label stock</H2>
+Labels are availible from avery and costar, among others.   Labels
+are availible in a variety of sizes.
+
+<P>
+EIMINC can
+make <A HREF="http://www.eiminc.com/pagemini.htm">
+custom labels specifically for barcoding</A>; 
+they claim these labels are more durable and are IR scanable.  They
+also sell tamper evident labels but I don't think they work in thermal
+label printers.
+<P> 
+
+<H2>Fonts</H2>
+This driver does not need any fonts or do any font handling; use whatever
+fonts are availible for postscript or pbmtext.  As a convenience to users
+of pbmtext, an X windows font grabbing utility (<CODE>grabfont</CODE>), 
+a demonstration of how to use them in receipt printing mode 
+(<CODE>fontdemo</CODE>) are included. 
+
+<H2>Tux</H2>
+An image of <A HREF="http://www.isc.tamu.edu/~lewing/linux/sit3-bw-tran.1.gif">
+TUX the penguin</A>
+
+<H2>Distribution Specific</H2>
+<H3>Old redhat versions</H3>
+<P>Not worth the trouble fixing the printtool.  Just create the queue
+entry in /etc/printcap and input filter manually and keep a backoup copy
+of printcap incase printtool clobbers it.
+<P>
+It would involve a bit of work to extend the redhat printtool/printfilters
+to handle label printers.
+<P>
+The redhat print tool needs to be extended to understand the concept
+of one or more postprocessors after ghostscript.  Additional fields should be
+added to their printer database /usr/lib/rhs/rhs-printfilters/printerdb.
+Printfilters should be added to convert ps-to-pbm and then pbm-to-printer.
+<P>
+redhat does understand the idea of a final filter that actually sends
+the data directly to the printer (smbprint), etc.  although that is all 
+hard coded into the main filter script.
+<P>
+The redhat print filters also seem to have a problem in that if they
+are starting from ascii they will apparently invoke asc-to-printer;
+it is not a valid assumption these days that the printer can handle ascii.
+They seem to make the mistake in assuming that any of the *-to-printer.fpi
+filters can actually be used.  It bypasses its own "DESIRED_TO" format.
+<P>
+<H3>Redhat 7.1</H3>
+<PRE>
+###
+### dymo label printer
+###
+wget ftp://speakeasy.rpmfind.net/linux/redhat/7.1/en/os/i386/SRPMS//printconf-0.2.12-1.src.rpm
+rpm -i printconf-0.2.12-1.src.rpm
+rpm -ba /usr/src/redhat/SPECS/printconf.spec 
+cd /usr/src/redhat/BUILD/printconf-0.2.12/src
+echo pbm2lwxl &gt;&gt;redhat_gs_driver_list 
+python util/build_striped_printer_db.py  foomatic/data japanese printer_db.pickle redhat_gs_driver_list
+patch printconf-gui &lt;&lt;\...EOF...
+--- printconf-gui.orig	Wed Mar 28 11:51:22 2001
++++ printconf-gui	Wed Jul 18 03:22:20 2001
+@@ -278,6 +278,12 @@
+ # This being a printing system, it's probably a good idea to go and see if there are any printers attached locally.
+ # There are much more intelligent approaches to this problem, but the rest of the system isn't sophisticated enough
+ # to care yet, so simply scaning likely devices to see if they can be opened for writing is sufficient.
++
++# Added serial ports which are needed to support Avery, Dymo, and Costar
++# label printers, among others.  And yes, we definitely need more than
++# for serial ports here.  My label printers are attached to
++# a byterunner 8 port board with ports from ttyS16-ttyS23
++#    - Mark Whitis &lt;whitis@freelabs.com&gt;
+ local_printers = []
+ for devlpx in [	'/dev/lp0',
+ 		'/dev/lp1',
+@@ -286,7 +292,40 @@
+ 		'/dev/usb/lp0',
+ 		'/dev/usb/lp1',
+ 		'/dev/usb/lp2',
+-		'/dev/usb/lp3']:
++		'/dev/usb/lp3',
++		'/dev/ttyS0',
++		'/dev/ttyS1',
++		'/dev/ttyS2',
++		'/dev/ttyS3',
++		'/dev/ttyS4',
++		'/dev/ttyS5',
++		'/dev/ttyS6',
++		'/dev/ttyS7',
++		'/dev/ttyS8',
++		'/dev/ttyS9',
++		'/dev/ttyS10',
++		'/dev/ttyS11',		
++		'/dev/ttyS12',
++		'/dev/ttyS13',				
++		'/dev/ttyS14',
++		'/dev/ttyS15',						
++		'/dev/ttyS16',
++		'/dev/ttyS17',
++		'/dev/ttyS18',
++		'/dev/ttyS19',
++		'/dev/ttyS20',
++		'/dev/ttyS21',		
++		'/dev/ttyS22',		
++		'/dev/ttyS23',		
++		'/dev/ttyS24',		
++		'/dev/ttyS25',		
++		'/dev/ttyS26',		
++		'/dev/ttyS27',		
++		'/dev/ttyS28',		
++		'/dev/ttyS29',		
++		'/dev/ttyS30',		
++		'/dev/ttyS31'
++		]:
+ 	try:
+ 		os.close (os.open (devlpx, os.O_WRONLY | os.O_NONBLOCK))
+ 		local_printers.append({'device':devlpx})
+...EOF...
+
+# chown lp /dev/ttyS16
+
+# buggy cp, can't overide -i with -f
+yes | cp printer_db.pickle /usr/share/printconf/printer_db.pickle
+yes | cp  printconf-gui /usr/sbin/printconf-gui
+
+printconf-gui &amp;
+   # Interactive, GUI
+# after configuring printer in printconf-gui, add :br#19200: in /etc/printcap
+# (which will unfortunately be erased next time printconf-gui runs)
+emacs /var/spool/lpd/lbltst/pbm2lwxl-126082.foo 
+  # change 
+  #    "| pnmflip -cw | pnmnoraw | pbm2lwxl" 
+  # to  
+  #    "| pbm2lwxl 448 1500"
+  # which defines a lable size of 2.125x8" (the length will be truncated
+  # based on how many lines ghostscript outputs)
+  # note this will give non-rotated output.  If you want rotated output
+  # you will need to reverse the width and height in all label 
+  # size definitions, put the pnmflip and pnmnoraw commands back, and
+  # remember to add the options to pbm2lwxl.  Better yet, figure out
+  # how to get portrait/landscape printing options to ghostscript
+  # once it is working, you may want to move from /etc/printcap
+  # to /etc/printcap.local so printconf won't hurt it.
+</PRE>
+
+<H2>Company Involvement</H2>
+This driver was written using a document (Lwxlprog.txt) downloaded 
+from costar's web site.  Programming documents, SDKs,
+etc are at their 
+<!-- <A HREF="http://www.costar.com/development/warez.htm">Developers Libary</A>  -->
+<A HREF="http://www.dymo.com/Support/DeveloperSupport/DeveloperLibrary.jhtml">Developers Libary</A> 
+including the 
+<!-- <A HREF="ftp://209.31.179.66/develop/lwxlprog.txt">LWXL programming Document</a> -->
+<A HREF="ftp://ftp.dymo.com/develop/XLtech.pdf">LWXL programming Document</a>
+
+.  Costar sent me several models of printers for testing purposes.
+<HREF="mailto:tkissane@dymo-costar.com">Tim Kissane</A> at CoStar
+runs Linux at home and has gotten some other people inside the
+company working Linux.
+
+
+<H2>Common Problems</H2>
+If the last half of the line seems garbled on 7x14 and 7x13 fonts in
+fontdemo, you are probably being bitten by newline translation.  
+Try "stty -onlcr <$device".
+<P>
+If XON/XOFF flow control is not working, garbage may be printed.
+<P>
+If you have any funny settings for xterm in your xdefaults, this will
+affect grabfont.
+
+<H2>Bugs</H2>
+No bugs have been reported.
+
+<H2>Other Operating Systems</H2>
+This should port easily to many operating systems.
+
+<H3>Unix Compatible</H3>
+This software should port easily to any unix compatible operating system, 
+including FreeBDS, Solaris, SunOS, AIX, etc.  The most likely change needed,
+if any, is to change which include files are used.
+
+<H3>Microsoft Windows, any version, or DOS</H3>
+<P>
+DO NOT send me requests for assistance with any version of microsoft 
+windows, with the possible exception of serious porting efforts.
+Dymo no longer supports the older printer models.  If you are
+looking for a windows driver, 
+<A HREF="http://download.softhouse.com.cn/static/driveproc/print/CoStar">
+look here
+</A>
+or do an intelligent search on google.  Remember to run a virus checker.
+If you have programming experience,
+you can try porting this driver or using dymo-costars windows SDK.  But don't
+bother me me windows end user questions.
+</P>
+
+<P>
+This program should port easily to DOS or the dos box on windows.  The
+challange is how to get the output of this program to a serial port.
+On a pure dos box, you may need a library which supports interrupt 
+driven I/O although simple redirection of standard output to COM1: may
+work (with appropriate MODE settings for buad rate, no translation, and
+XON/XOFF) since the data flow is output only except for XON/XOFF.
+On a dos window in windows, this may already be handled
+for you by windows if you open COMx:.  Don't forget to enable XON/XOFF
+and disable any translation.
+</P>
+
+<P>
+Have I made it perfectly clear that I do not provide tech support for 
+windoze users?
+</P>
+
+<ADDRESS>
+<P>This file is maintained by 
+<A HREF=http://www.freelabs.com/~whitis/whitis.html>Mark Whitis</A> 
+(<A href="mailto:whitis@freelabs.com">whitis@freelabs.com</A>).  
+</ADDRESS>
+
+<!-- Begin bio-terrorism -->
+<!--
+<TABLE BORDER=0>
+   <TR>
+       <TD>
+          <A HREF="/~whitis/biosafety/mail_handling.html">
+             <img SRC="/~whitis/biosafety/logo-biohazard.gif" WIDTH=118 HEIGHT=140>
+          </A>
+       </TD>
+       <TD>
+          NEW: A page on 
+          <A HREF="/~whitis/biosafety/mail_handling.html">
+             protecting against bio-terrorism 
+          </A>
+          via snail-mail.
+       </TD>
+   </TR>
+</TABLE>
+-->
+<!-- end bio-terrorism -->
+<P>
+<A HREF="http://www.freelabs.com/~whitis/nospam.html"><IMG SRC="http://www.freelabs.com/~whitis/gifs/zerospam.gif" ALT="[NO SPAM! Zero Tolerance: We charge a hefty fee for each unsolicited bulk email message received]"></A>
+
+<A HREF="http://www.eff.org/blueribbon.html"><IMG SRC="icons/blrib_banner_thin.gif" ALT="[Blue Ribbon Campaign]" WIDTH=500 HEIGHT=76 BORDER=0></A>
+</P>
+
+<P>
+All email messages received must pass the 
+<A HREF="http://www.freelabs.com/~whitis/whitis.html#turing_test">turing test</A> or they will be considered SPAM.  If it could have been written
+by a machine, it was.  
+</P>
+<P>
+Under no circumstances are you to email me with questions regarding windoze,
+any other microsoft operating system or application, or any software which
+runs under any form of windoze.
+</P>
+
+<TABLE BORDER=3>
+   <TR>
+      <TD>
+        <form action=http://pinpoint.netcreations.com/search method=get>
+        <table border=0 width=215 cellpadding=0 cellspacing=0><tr><td bgcolor=#d0d0d0>
+        <center><table border=0 cellpadding=0 cellspacing=0><tr><td>
+        <font size=2 color=black><b>Search this site for:</b><br>
+        <input type=hidden name=account value="whitis">
+        <input type=text name=query size=23></font>
+        <input type=image name=submit value="PinPoint Search!"
+        src=http://gfx.postmasterdirect.com/pinpoint/new/searchbutton.gif
+        width=56 height=16 border=0 align=top>
+        </td></tr></table></center>
+        <a href=http://pinpoint.netcreations.com/><img
+        src=http://gfx.postmasterdirect.com/pinpoint/new/formbottom.gif
+        width=215 height=16 border=0></a></td></tr></table>
+        </form>
+      </TD>
+      <TD>
+          Use the search form at the left to search this site,
+          including Free Electron Lab's, Mark's personal pages,
+          Mark's Linux Pages, and Mark's Genealogy pages.  
+      </TD>
+   </TR>
+</TABLE>
+
+
+<TABLE BORDER=3>
+   <TR>
+      <TD>
+         <A HREF="/~whitis/browser_friendly.html">
+            <IMG SRC="/~whitis/gifs/acc2all.gif" WIDTH=154 HEIGHT=81>
+         </A>
+      </TD>
+      <TD>
+          <P>
+             This page should be viewable on any reasonable browser 
+             including handheld devices, browsers with special accessability 
+             features for people with disabilities, text mode browsers, and 
+             browsers which lack Java and Javascript or have these features 
+             disabled for security reasons.  Adjust your browser window to any 
+             reasonable width you choose.
+          </P>
+       </TD>
+   </TR>
+</TABLE>
+
+
+<HR>
+There are 11 equally sized squares in this image ranging from 0% to 100%
+brightness in even steps of 10%.  If you cannot see each square, you need
+to adjust the brightness and contrast controls on your monitor.
+<IMG SRC="http://www.freelabs.com/~whitis/gifs/greybar.png" WIDTH=352 HEIGHT=32 ALT="[Greybar]">
+<HR>
+
+
+
+<!-- BEGIN MENU --->
+<TABLE BORDER=10 CELLSPACING=10 CELLPADDING=5>
+   <TR>
+       <TD>
+           Mark Whitis's Website
+       </TD>
+       <TD>
+          <A HREF="http://www.freelabs.com/~whitis/">
+             Home Page
+          </A>
+       </TD>
+
+       <TD>
+          <A HREF="http://www.freelabs.com/~whitis/linux/">
+             Linux
+          </A>
+       </TD>
+
+       <TD>
+          <A HREF="http://www.freelabs.com/~whitis/unleashed/">
+             Book: Linux Programming Unleashed
+          </A>
+       </TD>
+
+       <TD>
+          <A HREF="http://www.freelabs.com/~whitis/resume/">
+             My Resume
+          </A>
+       </TD>
+
+       <TD>
+          <A HREF="http://www.freelabs.com/~whitis/clan/">
+             Genealogical Data
+          </A>
+       </TD>
+
+       <TD>
+          <A HREF="http://www.freelabs.com/~whitis/whitis.html">
+             Contact Info
+          </A>
+       </TD>
+       <TD>
+          <A HREF="http://www.freelabs.com/~whitis/security/">
+              Security
+          </A>
+       </TD>
+       <TD>
+          <A HREF="http://www.freelabs.com/~whitis/about/">
+             About
+          </A>
+       </TD>
+   </TR>
+</TABLE>
+<!-- END MENU --->
+
+<!--
+<IMG SRC="javascript:window.open('http://www.freelabs.com/~whitis/security/javawarning.html','JavaWarning','toolbar=no,status=no,location=no,scrollbars,resizeable,height=400,width=400');void('');" width=1 height=1>
+-->
+
+<!-- Begin LinSwap Code--><br><br>
+<center>
+<br>
+<a HREF="http://www.linswap.com/cgi-bin/linswap/go1?u=linswap-366p0&s=1&p=1f1918981ac20df6d133a5fab0b5494d" target="_top"><br>
+&nbsp;&nbsp;<img SRC="http://www.linswap.com/cgi-bin/linswap/dis1?u=linswap-366p0&s=1&p=1f1918981ac20df6d133a5fab0b5494d" WIDTH="468" HEIGHT="60" BORDER="0" alt="[Linswap Banner Exchange Ad]"></a><br>
+<br><a href="http://www.linswap.com/">LinSwap: The Linux Banner Exchange Program.</a><br>
+<br>
+</center><br><br>
+<!-- End LinSwap Code-->
+
+
+
+</BODY>
+</HTML>
+
+
+
+
+
+
+
+
+

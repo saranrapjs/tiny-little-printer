@@ -1,0 +1,13 @@
+#!/bin/bash
+# Note that width and height are in printer coords not rotated label coords
+DPI=${DPI:-"192"}
+let x=DPI*3+DPI/2
+WIDTH=${WIDTH:-"$DPI"}
+HEIGHT=${HEIGHT:-"$x"}
+echo "DPI=$DPI" >&2
+echo "WIDTH=$WIDTH" >&2
+echo "HEIGHT=HEIGHT" >&2
+
+#ghostscript -sDEVICE=pbm -sOutputFile=- -q -dNOPAUSE -r192x192 -g700x192 -dSAFER - -c quit | pnmflip -cw | pnmnoraw | /usr/local/bin/pbm2lwxl $1 $2
+ghostscript -sDEVICE=pbm -sOutputFile=- -q -dNOPAUSE -r${DPI}x${DPI} -g${HEIGHT}x${WIDTH} -dSAFER - -c quit | pnmflip -cw | pnmnoraw | /usr/local/bin/pbm2lwxl $WIDTH $HEIGHT
+

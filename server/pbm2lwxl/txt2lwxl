@@ -1,0 +1,3 @@
+#!/bin/bash
+# good for 6 lines of 29 characters
+mpage -1 -o -m720t0lrb -L6 | /usr/local/bin/ps2lwxl
